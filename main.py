@@ -260,38 +260,32 @@ def api_guardar_hotel():
                 HotelController.insertar_hotel(
                     p_nombre, p_ubicacion, p_ruc, p_descripcion, nombre_seguro
                 )
+
         return jsonify({"Estado": True, "Mensaje": "Hotel registrado correctamente"})
     except Exception as e:
         return jsonify({"Estado": False, "Mensaje": str(e)})
 
 
-# HOTEL
 @app.route("/api_guardar_hotel_template", methods=["POST"])
 def api_guardar_hotel_template():
-    try:
-        # Obtener datos del formulario
-        p_nombre = request.form["nombre"]
-        p_ubicacion = request.form["ubicacion"]
-        p_ruc = request.form["ruc"]
-        p_descripcion = request.form["descripcion"]
-        # Verificar si se ha enviado un archivo
-        if "imagen" in request.files:
-            imagen = request.files["imagen"]
-            # Verificar si el archivo tiene un nombre
-            if imagen.filename != "":
-                # Generar un nombre seguro para el archivo
-                nombre_seguro = secure_filename(imagen.filename)
-                # Guardar la imagen en la carpeta designada
-                ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_seguro)
-                imagen.save(ruta_guardado)
-
-                # Insertar el hotel en la base de datos con el nombre de la imagen
-                HotelController.insertar_hotel(
-                    p_nombre, p_ubicacion, p_ruc, p_descripcion, nombre_seguro
-                )
-        return jsonify({"Estado": True, "Mensaje": "Hotel registrado correctamente"})
-    except Exception as e:
-        return jsonify({"Estado": False, "Mensaje": str(e)})
+    # Obtener datos del formulario
+    p_nombre = request.form["nombre"]
+    p_ubicacion = request.form["ubicacion"]
+    p_ruc = request.form["ruc"]
+    p_descripcion = request.form["descripcion"]
+    foto = request.files["foto"]
+    if foto:
+        # Generar un nombre único para el archivo
+        nombre_archivo = secure_filename(foto.filename)
+        ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+        foto.save(ruta_guardado)
+    else:
+        nombre_archivo = "default.png"
+    # Guardar la información del producto en la base de datos
+    HotelController.insertar_hotel(
+        p_nombre, p_ubicacion, p_ruc, p_descripcion, nombre_archivo
+    )
+    return redirect("/listadoHoteles")
 
 
 @app.route("/api_actualizar_hotel/<int:id>", methods=["POST"])
