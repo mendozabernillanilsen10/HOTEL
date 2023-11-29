@@ -1,49 +1,69 @@
-{% extends "maestra.html" %}
-
-{% block titulo %}
-Hoteles
-{% endblock %}
-
-{% block contenido %}
+<!-- listadohoteles.html -->
+{% extends "maestra.html" %} {% block titulo %} Hoteles {% endblock %} {% block
+contenido %}
 <section class="section">
-    <div class="columns">
-        <div class="container mt-4">
-            <h3 class="is-size-3">Listado de Hoteles <a href="{{ url_for('formulario_agregar_hotel') }}" class="button is-success is-small">Nuevo Hotel</a></h3>
+  <div class="columns">
+    <div class="container mt-4">
+      <h3 class="is-size-3">
+        Listado de Hoteles
+        <a
+          href="{{ url_for('formulario_agregar_hotel') }}"
+          class="button is-success is-small"
+          >Nuevo Hotel</a
+        >
+      </h3>
 
-            <table id="myTable" class="table is-striped is-hoverable is-fullwidth">
-                <thead class="has-background-primary">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Ubicación</th>
-                        <th>RUC</th>
-                        <th>Descripción</th>
-                        <th>Editar</th>
-                        <th>Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for hotel in hoteles %}
-                    <tr>
-                        <td>{{ hotel[0] }}</td>
-                        <td>{{ hotel[1] }}</td>
-                        <td>{{ hotel[2] }}</td>
-                        <td>{{ hotel[3] }}</td>
-                        <td>{{ hotel[4] }}</td>
-                        <td>
-                            <a href="{{ url_for('api_actualizar_hotel', id=hotel[0]) }}" class="button is-info">Editar</a>
-                        </td>
-                        <td>
-                            <form action="{{ url_for('api_eliminar_hotelPlantilla') }}" method="POST">
-                                <input type="hidden" name="id" value="{{ hotel[0] }}">
-                                <button class="button is-danger">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+      <table id="myTable" class="table is-striped is-hoverable is-fullwidth">
+        <thead class="has-background-primary">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Ubicación</th>
+            <th>RUC</th>
+            <th>Descripción</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
+            <th>Ver Habitaciones</th>
+            <!-- Nuevo encabezado -->
+          </tr>
+        </thead>
+        <tbody>
+          {% for hotel in hoteles %}
+          <tr>
+            <td>{{ hotel[0] }}</td>
+            <td>{{ hotel[1] }}</td>
+            <td>{{ hotel[2] }}</td>
+            <td>{{ hotel[3] }}</td>
+            <td>{{ hotel[4] }}</td>
+            <td>
+              <a
+                href="{{ url_for('api_actualizar_hotel', id=hotel[0]) }}"
+                class="button is-info"
+                >Editar</a
+              >
+            </td>
+            <td>
+              <form
+                action="{{ url_for('api_eliminar_hotelPlantilla') }}"
+                method="POST"
+              >
+                <input type="hidden" name="id" value="{{ hotel[0] }}" />
+                <button class="button is-danger">Eliminar</button>
+              </form>
+            </td>
+            <td>
+              <!-- Nueva columna para el botón de ver habitaciones -->
+              <a
+                href="{{ url_for('listadoHabitaciones', hotel_id=hotel[0]) }}"
+                class="button is-primary"
+                >Ver Habitaciones</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </section>
 {% endblock %}

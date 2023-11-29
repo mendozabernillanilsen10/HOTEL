@@ -14,6 +14,7 @@ from flask import redirect, url_for
 from controlador.ClienteController import ClienteController
 from controlador.HotelController import HotelController
 from clase.Cliente import Cliente
+from controlador.HabitacionController import HabitacionController
 from clase.Hotel import Hotel
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import (
@@ -197,8 +198,6 @@ def listadoclientes():
 def formulario_agregar_cliente():
     # Lógica para manejar el formulario de agregar cliente
     return render_template("agregar_Cliente.html")
-
-
 @app.route("/editar_cliente/<int:id>")
 def editar_cliente(id):
     # Logic to retrieve client information by ID
@@ -374,6 +373,38 @@ def listadoHoteles():
 @app.route("/formulario_agregar_hotel")
 def formulario_agregar_hotel():
     return render_template("agregar_hotel.html")
+
+
+#AGREGAR  HABITACIONES 
+
+
+
+# Ruta para mostrar el listado de habitaciones en un hotel específico
+@app.route("/listadoHabitaciones/<int:hotel_id>")
+def listadoHabitaciones(hotel_id):
+    # Lógica para obtener datos si es necesario
+    habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
+    return render_template("listadohabitaciones.html", habitaciones=habitaciones, hotel_id=hotel_id)
+
+@app.route("/formulario_agregar_habitacion/<int:hotel_id>", methods=["GET", "POST"])
+def formulario_agregar_habitacion(hotel_id):
+    if request.method == "POST":
+        # Obtener datos del formulario
+        numero = request.form["numero"]
+        tipo = request.form["tipo"]
+        precio = request.form["precio"]
+        foto_url = request.form["foto_url"]
+
+        # Lógica para insertar la habitación en la base de datos
+        HabitacionController.insertar_habitacion(
+            None, numero, tipo, precio, hotel_id, foto_url
+        )
+
+        # Redirigir a la página de listado de habitaciones
+        return redirect(url_for("listadoHabitaciones", hotel_id=hotel_id))
+
+    # Si es un GET, simplemente renderiza el formulario
+    return render_template("formulario_agregar_habitacion.html", hotel_id=hotel_id)
 
 
 if __name__ == "__main__":

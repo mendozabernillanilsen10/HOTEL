@@ -14,7 +14,8 @@ CREATE TABLE hoteles (
     nombre VARCHAR(100) NOT NULL,
     ubicacion VARCHAR(255) NOT NULL,
     ruc VARCHAR(20) UNIQUE NOT NULL,
-    descripcion TEXT
+    descripcion TEXT,
+    foto_url text NOT NULL
 );
 -- Crear la tabla de habitaciones con campo de foto_url
 CREATE TABLE habitaciones (

@@ -1,0 +1,52 @@
+{% extends "maestra.html" %} {% block titulo %} Habitaciones del Hotel {{
+hotel_id }} {% endblock %} {% block contenido %}
+<section class="section">
+  <div class="columns">
+    <div class="container mt-4">
+      <h3 class="is-size-3">Listado de Habitaciones</h3>
+
+      <table id="myTable" class="table is-striped is-hoverable is-fullwidth">
+        <thead class="has-background-primary">
+          <tr>
+            <th>ID</th>
+            <th>Número</th>
+            <th>Tipo</th>
+            <th>Precio</th>
+            <th>Foto URL</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for habitacion in habitaciones %}
+          <tr>
+            <td>{{ habitacion[0] }}</td>
+            <td>{{ habitacion[1] }}</td>
+            <td>{{ habitacion[2] }}</td>
+            <td>{{ habitacion[3] }}</td>
+            <td>{{ habitacion[5] }}</td>
+            <td>
+              <a
+                href="{{ url_for('editar_habitacion', id=habitacion[0]) }}"
+                class="button is-info"
+                >Editar</a
+              >
+              <form action="{{ url_for('eliminar_habitacion') }}" method="POST">
+                <input type="hidden" name="id" value="{{ habitacion[0] }}" />
+                <button class="button is-danger">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Agrega un enlace o botón para agregar habitaciones -->
+      <a
+        href="{{ url_for('formulario_agregar_habitacion', hotel_id=hotel_id) }}"
+        class="button is-success"
+        >Agregar Habitación</a
+      >
+    </div>
+  </div>
+</section>
+{% endblock %}
