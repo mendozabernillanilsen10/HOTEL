@@ -8,7 +8,6 @@ CREATE TABLE clientes (
     password varchar(250) DEFAULT NULL
 );
 
-https://www.admintem.com/search/label/Bootstrap?
 -- Crear la tabla de hoteles
 CREATE TABLE hoteles (
     id INT PRIMARY KEY AUTO_INCREMENT,
