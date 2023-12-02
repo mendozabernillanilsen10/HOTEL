@@ -124,8 +124,19 @@ def api_listar_reservas_por_cliente(cliente_id):
         # Obtener reservas por cliente utilizando el controlador
         reservas = ReservaController.obtener_reservas_por_cliente(cliente_id)
 
+        # Transformar las reservas a un formato con nombres de columnas
+        columnas = [
+            "id",
+            "cliente_id",
+            "habitacion_id",
+            "fecha_inicio",
+            "fecha_fin",
+            "estado",
+        ]
+        reservas_con_nombres = [dict(zip(columnas, reserva)) for reserva in reservas]
+
         # Retornar la lista de reservas en formato JSON
-        return jsonify({"Estado": True, "Reservas": reservas})
+        return jsonify({"Estado": True, "Reservas": reservas_con_nombres})
     except Exception as e:
         return jsonify({"Estado": False, "Mensaje": str(e)})
 
