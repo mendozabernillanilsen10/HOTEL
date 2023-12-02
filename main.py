@@ -19,6 +19,8 @@ from clase.LugarTuristico import LugarTuristico
 from controlador.LugarTuristicoController import LugarTuristicoController
 
 from clase.Reserva import Reserva
+from controlador.ReservaController import ReservaController
+
 from controlador.LugarTuristicoController import LugarTuristicoController
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import (
@@ -86,6 +88,44 @@ def api_obtener_clientes():
             listaserializable.append(cliente.midic.copy())
 
         return jsonify({"Estado": True, "Mensaje": "OK", "Datos": listaserializable})
+    except Exception as e:
+        return jsonify({"Estado": False, "Mensaje": str(e)})
+
+
+# registro de reserva
+
+
+@app.route("/api_guardar_reserva", methods=["POST"])
+def api_guardar_reserva():
+    try:
+        # Obtener datos del cuerpo de la solicitud en formato JSON
+        data = request.json
+        # Extraer datos del JSON
+        p_id = data.get("id")
+        p_cliente_id = data.get("cliente_id")
+        p_habitacion_id = data.get("habitacion_id")
+        p_fecha_inicio = data.get("fecha_inicio")
+        p_fecha_fin = data.get("fecha_fin")
+        p_estado = data.get("estado")
+        # Insertar reserva utilizando el controlador
+        ReservaController.insertar_reserva(
+            p_id, p_cliente_id, p_habitacion_id, p_fecha_inicio, p_fecha_fin, p_estado
+        )
+        # Retornar una respuesta exitosa en formato JSON
+        return jsonify({"Estado": True, "Mensaje": "Reserva registrada correctamente"})
+    except Exception as e:
+        # Retornar un mensaje de error en caso de excepción
+        return jsonify({"Estado": False, "Mensaje": str(e)})
+
+
+@app.route("/api_listar_reservas_por_cliente/<int:cliente_id>", methods=["GET"])
+def api_listar_reservas_por_cliente(cliente_id):
+    try:
+        # Obtener reservas por cliente utilizando el controlador
+        reservas = ReservaController.obtener_reservas_por_cliente(cliente_id)
+
+        # Retornar la lista de reservas en formato JSON
+        return jsonify({"Estado": True, "Reservas": reservas})
     except Exception as e:
         return jsonify({"Estado": False, "Mensaje": str(e)})
 

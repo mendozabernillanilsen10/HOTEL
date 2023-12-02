@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-12-2023 a las 02:12:21
+-- Tiempo de generación: 02-12-2023 a las 02:19:58
 -- Versión del servidor: 10.4.27-MariaDB
 -- Versión de PHP: 8.2.0
 
@@ -123,8 +123,8 @@ CREATE TABLE `reservas` (
   `id` int(11) NOT NULL,
   `cliente_id` int(11) DEFAULT NULL,
   `habitacion_id` int(11) DEFAULT NULL,
-  `fecha_inicio` date NOT NULL,
-  `fecha_fin` date NOT NULL,
+  `fecha_inicio` text NOT NULL,
+  `fecha_fin` text NOT NULL,
   `estado` varchar(20) DEFAULT 'Pendiente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
