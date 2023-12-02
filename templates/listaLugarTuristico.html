@@ -1,0 +1,48 @@
+{% extends "maestra.html" %}
+
+{% block titulo %}
+Lugares Turísticos
+{% endblock %}
+
+{% block contenido %}
+<section class="section">
+    <div class="columns">
+        <div class="container mt-4">
+            <h3 class="is-size-3">Listado de Lugares Turísticos <a href="{{ url_for('formulario_agregar_lugar_turistico') }}" class="button is-success is-small">Nuevo Lugar Turístico</a></h3>
+
+            <table id="myTable" class="table is-striped is-hoverable is-fullwidth">
+                <thead class="has-background-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Ubicación</th>
+                        <th>Foto URL</th>
+                     
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for LugarTuristico in LugarTuristico %}
+                    <tr>
+                        <td>{{ LugarTuristico[0] }}</td>
+                        <td>{{ LugarTuristico[1] }}</td>
+                        <td>{{ LugarTuristico[2] }}</td>
+                        <td>{{ LugarTuristico[3]  }}</td>
+                        <td>{{ LugarTuristico[4]  }}</td>
+
+                        <td>
+                            <form action="{{ url_for('api_eliminar_lugar_turistico_plantilla') }}" method="POST">
+                                <input type="hidden" name="id" value="{{ LugarTuristico[0]}}">
+                                <button class="button is-danger">Eliminar</button>
+                            </form>
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

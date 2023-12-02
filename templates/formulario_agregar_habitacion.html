@@ -1,0 +1,41 @@
+{% extends "maestra.html" %}
+
+{% block titulo %}
+  Agregar Habitación - Hotel {{ hotel_id }}
+{% endblock %}
+
+{% block contenido %}
+  <section class="section">
+    <div class="columns">
+      <div class="column is-one-third">
+        <h3 class="is-size-3">Agregar Nueva Habitación</h3>
+        
+        <form action="{{ url_for('api_guardar_habitacionPlantilla') }}" method="post" enctype="multipart/form-data">
+         
+         
+                   <input type="hidden" name="hotel_id" value="{{ hotel_id }}">
+
+         
+          <label for="numero">Número de Habitación:</label>
+          <input required type="text" class="input" placeholder="Número de Habitación" name="numero" id="numero">
+
+          <label for="tipo">Tipo de Habitación:</label>
+          <input required type="text" class="input" placeholder="Tipo de Habitación" name="tipo" id="tipo">
+
+          <label for="precio">Precio:</label>
+          <input required type="text" class="input" placeholder="Precio" name="precio" id="precio">
+          
+          <div class="field">
+            <label class="label">foto:</label>
+            <div class="control">
+                <input required type="file" class="input" name="foto" id="foto">
+            </div>
+          </div>
+
+
+          <button type="submit" class="button is-success mt-2">Guardar Habitación</button>
+        </form>
+      </div>
+    </div>
+  </section>
+{% endblock %}

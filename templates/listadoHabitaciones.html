@@ -3,6 +3,11 @@ hotel_id }} {% endblock %} {% block contenido %}
 <section class="section">
   <div class="columns">
     <div class="container mt-4">
+    <a
+       href="{{ url_for('formulario_agregar_habitacion', hotel_id=hotel_id) }}"
+       class="button is-success"
+       >Agregar Habitación</a
+     >
       <h3 class="is-size-3">Listado de Habitaciones</h3>
 
       <table id="myTable" class="table is-striped is-hoverable is-fullwidth">
@@ -25,11 +30,7 @@ hotel_id }} {% endblock %} {% block contenido %}
             <td>{{ habitacion[3] }}</td>
             <td>{{ habitacion[5] }}</td>
             <td>
-              <a
-                href="{{ url_for('editar_habitacion', id=habitacion[0]) }}"
-                class="button is-info"
-                >Editar</a
-              >
+             
               <form action="{{ url_for('eliminar_habitacion') }}" method="POST">
                 <input type="hidden" name="id" value="{{ habitacion[0] }}" />
                 <button class="button is-danger">Eliminar</button>
@@ -39,13 +40,6 @@ hotel_id }} {% endblock %} {% block contenido %}
           {% endfor %}
         </tbody>
       </table>
-
-      <!-- Agrega un enlace o botón para agregar habitaciones -->
-      <a
-        href="{{ url_for('formulario_agregar_habitacion', hotel_id=hotel_id) }}"
-        class="button is-success"
-        >Agregar Habitación</a
-      >
     </div>
   </div>
 </section>

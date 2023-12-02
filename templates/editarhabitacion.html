@@ -1,0 +1,48 @@
+{% extends "maestra.html" %}
+
+{% block titulo %}
+Editar Habitación
+{% endblock %}
+
+{% block contenido %}
+<section class="section">
+    <div class="container mt-4">
+        <h3 class="is-size-3">Editar Habitación</h3>
+
+        <form action="{{ url_for('editar_habitacion', id=habitacion[0]) }}" method="POST">
+            <!-- Campos del formulario para editar habitación -->
+            <div class="field">
+                <label class="label">Número de Habitación:</label>
+                <div class="control">
+                    <input class="input" type="text" name="numero" value="{{ habitacion[1] }}">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Tipo de Habitación:</label>
+                <div class="control">
+                    <input class="input" type="text" name="tipo" value="{{ habitacion[2] }}">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Precio:</label>
+                <div class="control">
+                    <input class="input" type="text" name="precio" value="{{ habitacion[3] }}">
+                </div>
+            </div>
+
+            <!-- Otros campos según tus necesidades -->
+
+            <div class="field is-grouped">
+                <div class="control">
+                    <button type="submit" class="button is-link">Guardar Cambios</button>
+                </div>
+                <div class="control">
+                    <a href="{{ url_for('listadoHabitaciones', hotel_id=habitacion.hotel_id) }}" class="button is-danger">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

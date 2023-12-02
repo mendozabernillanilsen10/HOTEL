@@ -1,5 +1,4 @@
 import json
-
 from flask import (
     Flask,
     render_template,
@@ -9,13 +8,18 @@ from flask import (
     jsonify,
     send_from_directory,
 )
-
 from flask import redirect, url_for
 from controlador.ClienteController import ClienteController
 from controlador.HotelController import HotelController
 from clase.Cliente import Cliente
-from controlador.HabitacionController import HabitacionController
 from clase.Hotel import Hotel
+from clase.Habitacion import Habitacion
+from controlador.HabitacionController import HabitacionController
+from clase.LugarTuristico import LugarTuristico
+from controlador.LugarTuristicoController import LugarTuristicoController
+
+from clase.Reserva import Reserva
+from controlador.LugarTuristicoController import LugarTuristicoController
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import (
     JWTManager,
@@ -198,6 +202,8 @@ def listadoclientes():
 def formulario_agregar_cliente():
     # Lógica para manejar el formulario de agregar cliente
     return render_template("agregar_Cliente.html")
+
+
 @app.route("/editar_cliente/<int:id>")
 def editar_cliente(id):
     # Logic to retrieve client information by ID
@@ -360,7 +366,58 @@ def api_eliminar_hotelPlantilla():
     except Exception as e:
         return redirect(
             url_for("listadoHoteles")
-        )  # Asegúrate de que el nombre sea correcto
+        )  # Asegúrate de que el nombre sea correctoç
+
+
+@app.route("/listado_lugares_turisticos")
+def listado_lugares_turisticos():
+    LugarTuristico = LugarTuristicoController.obtener_lugares_turisticos()
+    return render_template("listaLugarTuristico.html", LugarTuristico=LugarTuristico)
+
+
+@app.route("/api_eliminar_lugar_turistico_plantilla", methods=["POST"])
+def api_eliminar_lugar_turistico_plantilla():
+    if request.method == "POST":
+        habitacion_id = request.form.get("id")
+        LugarTuristicoController.eliminar_lugar_turistico(habitacion_id)
+        # Redirigir al listado de habitaciones después de la eliminación
+    return redirect(url_for("listado_lugares_turisticos"))
+
+
+@app.route("/formulario_agregar_lugar_turistico")
+def formulario_agregar_lugar_turistico():
+    # Lógica para manejar el formulario de agregar cliente
+    return render_template("formulario_agregar_lugar_turistico.html")
+
+
+@app.route("/api_guardar_lugar_turistico_template", methods=["POST"])
+def api_guardar_lugar_turistico_template():
+    try:
+        # Obtener los datos del formulario
+        nombre = request.form.get("nombre")
+        ubicacion = request.form.get("ubicacion")
+        descripcion = request.form.get("descripcion")
+        foto = request.files.get("foto")
+        if foto:
+            # Generar un nombre único para el archivo
+            nombre_archivo = secure_filename(foto.filename)
+            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+            foto.save(ruta_guardado)
+        else:
+            nombre_archivo = "default.png"
+
+        # Usar el nombre de la foto como argumento
+        LugarTuristicoController.insertar_lugar_turistico(
+            p_nombre=nombre,
+            p_descripcion=descripcion,
+            p_ubicacion=ubicacion,
+            p_foto_url=nombre_archivo,  # Cambié el nombre del argumento aquí
+        )
+
+        # Después de procesar el formulario, redirige a la página de listado de lugares turísticos
+        return redirect(url_for("listado_lugares_turisticos"))
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 @app.route("/listadoHoteles")
@@ -375,36 +432,140 @@ def formulario_agregar_hotel():
     return render_template("agregar_hotel.html")
 
 
-#AGREGAR  HABITACIONES 
+@app.route("/Api_guardarHabitacionGet", methods=["POST"])
+def Api_guardarHabitacionGet():
+    try:
+        # Extraer los campos necesarios del formulario
+        hotel_id = request.form.get("hotel_id")
+        numero = request.form.get("numero")
+        tipo = request.form.get("tipo")
+        precio = request.form.get("precio")
+        foto = request.files.get("foto")
+        if foto:
+            # Generar un nombre único para el archivo
+            nombre_archivo = secure_filename(foto.filename)
+            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+            foto.save(ruta_guardado)
+        else:
+            nombre_archivo = "default.png"
+        HabitacionController.insertar_habitacion(
+            numero, tipo, precio, hotel_id, nombre_archivo
+        )
+        response = {"mensaje": "Habitación guardada correctamente"}
+        return jsonify(response), 200
+
+    except Exception as e:
+        # Manejar errores, por ejemplo, si no se pueden obtener los datos correctamente
+        response = {"error": str(e)}
+        return jsonify(response), 500
 
 
+@app.route("/api_guardar_habitacionPlantilla", methods=["POST"])
+def api_guardar_habitacionPlantilla():
+    try:
+        # Extraer los campos necesarios del formulario
+        hotel_id = request.form.get("hotel_id")
+        numero = request.form.get("numero")
+        tipo = request.form.get("tipo")
+        precio = request.form.get("precio")
+        foto = request.files.get("foto")
+        if foto:
+            # Generar un nombre único para el archivo
+            nombre_archivo = secure_filename(foto.filename)
+            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+            foto.save(ruta_guardado)
+        else:
+            nombre_archivo = "default.png"
+        HabitacionController.insertar_habitacion(
+            numero, tipo, precio, hotel_id, nombre_archivo
+        )
+        return redirect(url_for("listadoHabitaciones", hotel_id=hotel_id))
 
-# Ruta para mostrar el listado de habitaciones en un hotel específico
-@app.route("/listadoHabitaciones/<int:hotel_id>")
-def listadoHabitaciones(hotel_id):
-    # Lógica para obtener datos si es necesario
-    habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
-    return render_template("listadohabitaciones.html", habitaciones=habitaciones, hotel_id=hotel_id)
+    except Exception as e:
+        # Manejar errores, por ejemplo, si no se pueden obtener los datos correctamente
+        response = {"error": str(e)}
+        return jsonify(response), 500
+
 
 @app.route("/formulario_agregar_habitacion/<int:hotel_id>", methods=["GET", "POST"])
 def formulario_agregar_habitacion(hotel_id):
-    if request.method == "POST":
-        # Obtener datos del formulario
-        numero = request.form["numero"]
-        tipo = request.form["tipo"]
-        precio = request.form["precio"]
-        foto_url = request.form["foto_url"]
+    return render_template("formulario_agregar_habitacion.html", hotel_id=hotel_id)
 
-        # Lógica para insertar la habitación en la base de datos
-        HabitacionController.insertar_habitacion(
-            None, numero, tipo, precio, hotel_id, foto_url
+
+@app.route("/editar_habitacion/<int:id>", methods=["GET", "POST"])
+def editar_habitacion(id):
+    # Obtener la habitación a editar desde la base de datos
+    habitacion = HabitacionController.obtener_habitacion_por_id(id)
+
+    if request.method == "POST":
+        # Procesar el formulario enviado
+        numero = request.form.get("numero")
+        tipo = request.form.get("tipo")
+        precio = request.form.get("precio")
+
+        # Realizar la actualización en la base de datos
+        HabitacionController.actualizar_habitacion(
+            id, numero, tipo, precio, habitacion.hotel_id, habitacion.foto_url
         )
 
-        # Redirigir a la página de listado de habitaciones
-        return redirect(url_for("listadoHabitaciones", hotel_id=hotel_id))
+        # Redirigir a la lista de habitaciones del hotel
+        return redirect(url_for("listadoHabitaciones", hotel_id=habitacion.hotel_id))
 
-    # Si es un GET, simplemente renderiza el formulario
-    return render_template("formulario_agregar_habitacion.html", hotel_id=hotel_id)
+    # Renderizar la plantilla de edición con los datos de la habitación
+    return render_template("editarhabitacion.html", habitacion=habitacion)
+
+
+@app.route("/listado_habitaciones/<int:hotel_id>")
+def listadoHabitaciones(hotel_id):
+    # Lógica para obtener las habitaciones
+    habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
+
+    # Renderiza la plantilla y pasa el hotel_id al contexto
+    return render_template(
+        "listadohabitaciones.html", habitaciones=habitaciones, hotel_id=hotel_id
+    )
+
+
+@app.route("/eliminar_habitacion", methods=["POST"])
+def eliminar_habitacion():
+    if request.method == "POST":
+        habitacion_id = request.form.get("id")
+        HabitacionController.eliminar_habitacion(habitacion_id)
+        # Redirigir al listado de habitaciones después de la eliminación
+        return redirect(url_for("listadoHabitaciones", hotel_id=1))
+
+
+@app.route("/api_obtener_habitaciones_por_hotel/<int:hotel_id>")
+def api_obtener_habitaciones_por_hotel(hotel_id):
+    try:
+        habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
+        if habitaciones:
+            # Convertir la lista de habitaciones a un formato JSON
+            habitaciones_json = [
+                {
+                    "id": habitacion[0],
+                    "numero": habitacion[1],
+                    "tipo": habitacion[2],
+                    "precio": habitacion[3],
+                    "hotel_id": habitacion[4],
+                    "foto_url": habitacion[5],
+                }
+                for habitacion in habitaciones
+            ]
+
+            return jsonify(
+                {"Estado": True, "Mensaje": "OK", "Datos": habitaciones_json}
+            )
+        else:
+            return jsonify(
+                {
+                    "Estado": False,
+                    "Mensaje": "No hay habitaciones para el hotel especificado",
+                }
+            )
+
+    except Exception as e:
+        return jsonify({"Estado": False, "Mensaje": str(e)})
 
 
 if __name__ == "__main__":
