@@ -26,8 +26,8 @@ class HotelController:
                     p_ubicacion,
                     p_ruc,
                     p_descripcion,
-                    p_id,
                     nuevo_nombre_seguro,
+                    p_id,
                 ),
             )
         conexion.commit()
@@ -39,7 +39,7 @@ class HotelController:
         hotel = None
         with conexion.cursor() as cursor:
             cursor.execute(
-                "SELECT id, nombre, ubicacion, ruc, descripcion FROM hoteles WHERE id = %s",
+                "SELECT id, nombre, ubicacion, ruc, descripcion ,foto_url FROM hoteles WHERE id = %s",
                 (p_id,),
             )
             hotel = cursor.fetchone()

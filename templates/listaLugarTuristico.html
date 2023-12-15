@@ -29,9 +29,16 @@ Lugares Turísticos
                         <td>{{ LugarTuristico[1] }}</td>
                         <td>{{ LugarTuristico[2] }}</td>
                         <td>{{ LugarTuristico[3]  }}</td>
-                        <td>{{ LugarTuristico[4]  }}</td>
-
                         <td>
+                            <img src="{{ url_for('mostrar_imagen', filename=LugarTuristico[4]) }}" alt="Imagen" style="max-width: 200px;">
+                        </td>
+                        
+                        <td>
+                            <a
+                    href="{{ url_for('editar_lugar_turistico', id=LugarTuristico[0]) }}"
+                    class="button is-info"
+                    >Editar</a
+                  >
                             <form action="{{ url_for('api_eliminar_lugar_turistico_plantilla') }}" method="POST">
                                 <input type="hidden" name="id" value="{{ LugarTuristico[0]}}">
                                 <button class="button is-danger">Eliminar</button>

@@ -1,0 +1,56 @@
+{% extends "maestra.html" %}
+
+{% block titulo %}
+Editar Habitación
+{% endblock %}
+
+{% block contenido %}
+<section class="section">
+    <div class="container mt-4">
+        <h3 class="is-size-3">Editar Habitación</h3>
+
+        <form action="{{ url_for('editar_habitacion', id=habitacion.id) }}" method="POST" enctype="multipart/form-data">
+            <div class="field">
+                <label class="label">Número:</label>
+                <div class="control">
+                    <input class="input" type="text" id="numero" name="numero" value="{{ habitacion.numero }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Tipo:</label>
+                <div class="control">
+                    <input class="input" type="text" id="tipo" name="tipo" value="{{ habitacion.tipo }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Precio:</label>
+                <div class="control">
+                    <input class="input" type="text" id="precio" name="precio" value="{{ habitacion.precio }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Imagen Actual:</label>
+                <div class="control">
+                    <img src="{{ url_for('mostrar_imagen', filename=habitacion.foto_url) }}" alt="Imagen Actual" style="max-width: 200px;">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Nueva Imagen:</label>
+                <div class="control">
+                    <input type="file" class="input" name="nueva_imagen" id="nueva_imagen">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-success" type="submit">Guardar Cambios</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

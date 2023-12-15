@@ -35,7 +35,7 @@
                 <td>{{ hotel[4] }}</td>
                 <td>
                   <a
-                    href="{{ url_for('api_actualizar_hotel', id=hotel[0]) }}"
+                    href="{{ url_for('editar_hotel', id=hotel[0]) }}"
                     class="button is-info"
                     >Editar</a
                   >
@@ -51,12 +51,12 @@
                 </td>
                 <td>
                   <!-- Nueva columna para el botón de ver habitaciones -->
-                  <a
-                    href="{{ url_for('listadoHabitaciones', hotel_id=hotel[0]) }}"
-                    class="button is-primary"
-                    >Ver Habitaciones</a
-                  >
-                </td>
+                  <a href="{{ url_for('listado_habitaciones', hotel_id=hotel[0]) }}" class="button is-primary ver-habitaciones mb-2">Ver Habitaciones</a>
+                  <br>
+                  <a href="{{ url_for('listado_Reservas', hotel_id=hotel[0]) }}" class="button is-primary ver-reservas mt-2">Ver Reservas</a>
+              </td>
+              
+              
               </tr>
               {% endfor %}
             </tbody>

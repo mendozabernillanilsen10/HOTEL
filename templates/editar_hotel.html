@@ -1,0 +1,66 @@
+{% extends "maestra.html" %}
+
+{% block titulo %}
+Editar Hotel
+{% endblock %}
+
+{% block contenido %}
+<section class="section">
+    <div class="container mt-4">
+        <h3 class="is-size-3">Editar Hotel</h3>
+
+        <form action="{{ url_for('api_actualizar_hotelTemplate', id=hotel[0]) }}" method="POST" enctype="multipart/form-data">
+            <div class="field">
+                <label class="label">Nombre:</label>
+                <div class="control">
+                    <input class="input" type="text" id="nombre" name="nombre" value="{{ hotel[1] }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Ubicación:</label>
+                <div class="control">
+                    <input class="input" type="text" id="ubicacion" name="ubicacion" value="{{  hotel[2] }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">RUC:</label>
+                <div class="control">
+                    <input class="input" type="text" id="ruc" name="ruc" value="{{  hotel[3] }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Descripción:</label>
+                <div class="control">
+                    <textarea class="textarea" name="descripcion" required>{{  hotel[4] }}</textarea>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Imagen Actual:</label>
+                <div class="control">
+                    <img src="{{ url_for('mostrar_imagen', filename=hotel[4]) }}" alt="Imagen" style="max-width: 200px;">
+
+                </div>
+
+            </div>
+            
+
+            <div class="field">
+                <label class="label">Nueva Imagen:</label>
+                <div class="control">
+                    <input type="file" class="input" name="nueva_imagen" id="nueva_imagen">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-success" type="submit">Actualizar Hotel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

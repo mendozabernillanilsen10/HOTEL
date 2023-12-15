@@ -1,0 +1,49 @@
+{% extends "maestra.html" %} {% block titulo %} Habitaciones del Hotel {{
+  hotel_id }} {% endblock %} {% block contenido %}
+<section class="section">
+  <div class="columns">
+    <div class="container mt-4">
+      <table id="myTable" class="table is-striped is-hoverable is-fullwidth">
+        <thead class="has-background-primary">
+          <tr>
+    
+            <th>Cliente Nombre</th>
+            <th>Cliente Apellido</th>
+            <th>Cliente DNI</th>
+            <th>Lugar Procedecencia</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Estado</th>
+            <th>Habitacion Numero</th>
+            <th>Habitacion Tipo</th>
+            <th>Habitacion Precio</th>
+            <th>Hotel Nombre</th>
+            <th>Hotel Ubicacion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reserva in reservas %}
+          <tr>
+       
+            <td>{{ reserva[2] }}</td>
+            <td>{{ reserva[3] }}</td>
+            <td>{{ reserva[4] }}</td>
+            <td>{{ reserva[5] }}</td>
+     
+            <td>{{ reserva[7] }}</td>
+            <td>{{ reserva[8] }}</td>
+            <td>{{ reserva[9] }}</td>
+            <td>{{ reserva[10] }}</td>
+            <td>{{ reserva[11] }}</td>
+            <td>{{ reserva[12] }}</td>
+            <td>{{ reserva[13] }}</td>
+            <td>{{ reserva[14] }}</td>
+          
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

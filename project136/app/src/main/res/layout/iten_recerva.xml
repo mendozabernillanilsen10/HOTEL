@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:background="#0FC84C"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/hotelName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="hotel la florida"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textAlignment="center"/>
+    <TextView
+        android:id="@+id/direccion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="calle los mangos"
+        android:textColor="@color/white"
+        android:textAlignment="center"/>
+    <TextView
+        android:id="@+id/numeeroHabitacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="habitacion presindencial #256"
+        android:textColor="@color/white"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/fecha_serva"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="fecha de reserva 2000-12-12"
+        android:textColor="@color/white"
+        android:textAlignment="center"/>
+    <TextView
+        android:id="@+id/fecha_termino"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="fecha de reserva 2000-12-12"
+        android:textColor="@color/white"
+        android:textAlignment="center"/>
+
+</LinearLayout>

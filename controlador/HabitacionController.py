@@ -44,14 +44,12 @@ class HabitacionController:
         conexion.close()
 
     @classmethod
-    def actualizar_habitacion(
-        cls, p_id, p_numero, p_tipo, p_precio, p_hotel_id, p_foto_url
-    ):
+    def actualizar_habitacion(cls, p_id, p_numero, p_tipo, p_precio, p_foto_url):
         conexion = obtener_conexion()
         with conexion.cursor() as cursor:
             cursor.execute(
-                "UPDATE habitaciones SET numero = %s, tipo = %s, precio = %s, hotel_id = %s, foto_url = %s WHERE id = %s",
-                (p_numero, p_tipo, p_precio, p_hotel_id, p_foto_url, p_id),
+                "UPDATE habitaciones SET numero = %s, tipo = %s, precio = %s,  foto_url = %s WHERE id = %s",
+                (p_numero, p_tipo, p_precio, p_foto_url, p_id),
             )
         conexion.commit()
         conexion.close()

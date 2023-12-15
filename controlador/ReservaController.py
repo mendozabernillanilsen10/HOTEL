@@ -4,14 +4,13 @@ from bd import obtener_conexion
 class ReservaController:
     @classmethod
     def insertar_reserva(
-        cls, p_id, p_cliente_id, p_habitacion_id, p_fecha_inicio, p_fecha_fin, p_estado
+        cls, p_cliente_id, p_habitacion_id, p_fecha_inicio, p_fecha_fin, p_estado
     ):
         conexion = obtener_conexion()
         with conexion.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO reservas (id, cliente_id, habitacion_id, fecha_inicio, fecha_fin, estado) VALUES (%s, %s, %s, %s, %s, %s)",
+                "INSERT INTO reservas ( cliente_id, habitacion_id, fecha_inicio, fecha_fin, estado) VALUES ( %s, %s, %s, %s, %s)",
                 (
-                    p_id,
                     p_cliente_id,
                     p_habitacion_id,
                     p_fecha_inicio,
@@ -81,9 +80,77 @@ class ReservaController:
         reservas = []
         with conexion.cursor() as cursor:
             cursor.execute(
-                "SELECT id, cliente_id, habitacion_id, fecha_inicio, fecha_fin, estado FROM reservas WHERE cliente_id = %s",
+                """
+                SELECT
+                    r.id as reserva_id,
+                    r.cliente_id,
+                    r.habitacion_id,
+                    r.fecha_inicio,
+                    r.fecha_fin,
+                    r.estado,
+                    h.numero as habitacion_numero,
+                    h.tipo as habitacion_tipo,
+                    h.precio as habitacion_precio,
+                    ho.nombre as hotel_nombre,
+                    ho.ubicacion as hotel_ubicacion
+                FROM reservas r
+                INNER JOIN habitaciones h ON r.habitacion_id = h.id
+                INNER JOIN hoteles ho ON h.hotel_id = ho.id
+                WHERE r.cliente_id = %s
+            """,
                 (cliente_id,),
             )
+            reservas = cursor.fetchall()
+        conexion.close()
+        return reservas
+
+    @classmethod
+    def obtener_reservas_por_habitacion_y_periodo(
+        cls, habitacion_id, fecha_inicio, fecha_fin
+    ):
+        conexion = obtener_conexion()
+        reservas = []
+        with conexion.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, cliente_id, habitacion_id, fecha_inicio, fecha_fin, estado FROM reservas WHERE habitacion_id = %s AND ((fecha_inicio >= %s AND fecha_inicio <= %s) OR (fecha_fin >= %s AND fecha_fin <= %s))",
+                (habitacion_id, fecha_inicio, fecha_fin, fecha_inicio, fecha_fin),
+            )
+            reservas = cursor.fetchall()
+        conexion.close()
+        return reservas
+
+    @classmethod
+    def obtener_reservas_por_hotel(cls, hotel_id):
+        conexion = obtener_conexion()
+        reservas = []
+        with conexion.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    r.id as reserva_id,
+                    r.cliente_id,
+                    c.nombre as cliente_nombre,
+                    c.apellido as cliente_apellido,
+                    c.dni as cliente_dni,
+                    c.lugar_procedencia as cliente_lugar_procedencia,
+                    r.habitacion_id,
+                    r.fecha_inicio,
+                    r.fecha_fin,
+                    r.estado,
+                    h.numero as habitacion_numero,
+                    h.tipo as habitacion_tipo,
+                    h.precio as habitacion_precio,
+                    ho.nombre as hotel_nombre,
+                    ho.ubicacion as hotel_ubicacion
+                FROM reservas r
+                INNER JOIN habitaciones h ON r.habitacion_id = h.id
+                INNER JOIN hoteles ho ON h.hotel_id = ho.id
+                INNER JOIN clientes c ON r.cliente_id = c.id
+                WHERE ho.id = %s
+                """,
+                (hotel_id,),
+            )
+
             reservas = cursor.fetchall()
         conexion.close()
         return reservas

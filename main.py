@@ -8,6 +8,7 @@ from flask import (
     jsonify,
     send_from_directory,
 )
+from datetime import date
 from flask import redirect, url_for
 from controlador.ClienteController import ClienteController
 from controlador.HotelController import HotelController
@@ -48,6 +49,95 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 @app.route("/imagen/<path:filename>")
 def mostrar_imagen(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+
+@app.route("/api_obtener_habitaciones_por_hotel/<int:hotel_id>")
+@jwt_required()
+def api_obtener_habitaciones_por_hotel(hotel_id):
+    try:
+        habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
+        if habitaciones:
+            # Construir la URL base para las imágenes
+            base_url = request.url_root + "imagen/"
+
+            # Convertir la lista de habitaciones a un formato JSON con URL completa
+            habitaciones_json = [
+                {
+                    "id": habitacion[0],
+                    "numero": habitacion[1],
+                    "tipo": habitacion[2],
+                    "precio": habitacion[3],
+                    "hotel_id": habitacion[4],
+                    "foto_url": base_url + habitacion[5],  # Construir la URL completa
+                }
+                for habitacion in habitaciones
+            ]
+
+            return jsonify(
+                {"Estado": True, "Mensaje": "OK", "Datos": habitaciones_json}
+            )
+        else:
+            return jsonify(
+                {
+                    "Estado": False,
+                    "Mensaje": "No hay habitaciones para el hotel especificado",
+                }
+            )
+
+    except Exception as e:
+        return jsonify({"Estado": False, "Mensaje": str(e)})
+
+
+@app.route("/api_obtener_hoteles")
+@jwt_required()
+def api_obtener_hoteles():
+    try:
+        base_url = request.url_root + "imagen/"  # URL base para las imágenes
+        hoteles = HotelController.obtener_hoteles()
+        listaserializable = []
+
+        for hotel_data in hoteles:
+            # Asegúrate de que hotel_data tenga al menos 6 elementos
+            if len(hotel_data) >= 6:
+                hotel = Hotel(*hotel_data)
+                hotel_dict = hotel.midic.copy()
+
+                # Construye la URL completa para la imagen
+                hotel_dict["foto_url"] = base_url + hotel_dict["foto_url"]
+
+                listaserializable.append(hotel_dict)
+            else:
+                print(f"Datos insuficientes para hotel: {hotel_data}")
+
+        return jsonify({"Estado": True, "Mensaje": "OK", "Datos": listaserializable})
+    except Exception as e:
+        return jsonify({"Estado": False, "Mensaje": str(e)})
+
+
+@app.route("/optenerLugaresTuristicos")
+@jwt_required()
+def optenerLugaresTuristicos():
+    try:
+        lugares = LugarTuristicoController.obtener_lugares_turisticos()
+        lugar_list = []
+
+        for citas_data in lugares:
+            foto_nombre = citas_data[4]
+            foto_url = f"{request.url_root}imagen/{foto_nombre}"
+
+            citas_dict = {
+                "id": citas_data[0],
+                "nombre": citas_data[1],
+                "descripcion": citas_data[2],
+                "ubicacion": citas_data[3],
+                "foto_url": foto_url,
+            }
+            lugar_list.append(citas_dict)
+
+        return jsonify({"Estado": True, "Mensaje": "OK", "Datos": lugar_list})
+
+    except Exception as e:
+        return jsonify({"Estado": False, "Mensaje": str(e)})
 
 
 @app.route("/api_login", methods=["POST"])
@@ -92,48 +182,76 @@ def api_obtener_clientes():
         return jsonify({"Estado": False, "Mensaje": str(e)})
 
 
-# registro de reserva
-
-
 @app.route("/api_guardar_reserva", methods=["POST"])
+@jwt_required()
 def api_guardar_reserva():
     try:
         # Obtener datos del cuerpo de la solicitud en formato JSON
         data = request.json
         # Extraer datos del JSON
-        p_id = data.get("id")
         p_cliente_id = data.get("cliente_id")
         p_habitacion_id = data.get("habitacion_id")
         p_fecha_inicio = data.get("fecha_inicio")
         p_fecha_fin = data.get("fecha_fin")
         p_estado = data.get("estado")
-        # Insertar reserva utilizando el controlador
-        ReservaController.insertar_reserva(
-            p_id, p_cliente_id, p_habitacion_id, p_fecha_inicio, p_fecha_fin, p_estado
-        )
-        # Retornar una respuesta exitosa en formato JSON
-        return jsonify({"Estado": True, "Mensaje": "Reserva registrada correctamente"})
+
+        # Verificar disponibilidad antes de insertar la reserva
+        if verificar_disponibilidad(p_habitacion_id, p_fecha_inicio, p_fecha_fin):
+            # La habitación está disponible, proceder con la inserción
+            ReservaController.insertar_reserva(
+                p_cliente_id, p_habitacion_id, p_fecha_inicio, p_fecha_fin, p_estado
+            )
+            # Retornar una respuesta exitosa en formato JSON
+            return jsonify(
+                {"Estado": True, "Mensaje": "Reserva registrada correctamente"}
+            )
+        else:
+            # La habitación no está disponible en ese período
+            return jsonify(
+                {
+                    "Estado": False,
+                    "Mensaje": "La habitación no está disponible en ese período",
+                }
+            )
+
     except Exception as e:
         # Retornar un mensaje de error en caso de excepción
         return jsonify({"Estado": False, "Mensaje": str(e)})
 
 
+def verificar_disponibilidad(habitacion_id, fecha_inicio, fecha_fin):
+    # Obtener las reservas para la habitación y período especificado
+    reservas = ReservaController.obtener_reservas_por_habitacion_y_periodo(
+        habitacion_id, fecha_inicio, fecha_fin
+    )
+    # Verificar si hay reservas que coincidan en el período
+    return not reservas
+
+
 @app.route("/api_listar_reservas_por_cliente/<int:cliente_id>", methods=["GET"])
+@jwt_required()
 def api_listar_reservas_por_cliente(cliente_id):
     try:
         # Obtener reservas por cliente utilizando el controlador
         reservas = ReservaController.obtener_reservas_por_cliente(cliente_id)
 
-        # Transformar las reservas a un formato con nombres de columnas
-        columnas = [
-            "id",
-            "cliente_id",
-            "habitacion_id",
-            "fecha_inicio",
-            "fecha_fin",
-            "estado",
-        ]
-        reservas_con_nombres = [dict(zip(columnas, reserva)) for reserva in reservas]
+        # Transformar las reservas a un formato con nombres de columnas y fechas formateadas
+        reservas_con_nombres = []
+        for reserva in reservas:
+            reserva_formateada = {
+                "reserva_id": reserva[0],
+                "cliente_id": reserva[1],
+                "habitacion_id": reserva[2],
+                "fecha_inicio": reserva[3].strftime("%Y-%m-%d"),
+                "fecha_fin": reserva[4].strftime("%Y-%m-%d"),
+                "estado": reserva[5],
+                "habitacion_numero": reserva[6],
+                "habitacion_tipo": reserva[7],
+                "habitacion_precio": reserva[8],
+                "hotel_nombre": reserva[9],
+                "hotel_ubicacion": reserva[10],
+            }
+            reservas_con_nombres.append(reserva_formateada)
 
         # Retornar la lista de reservas en formato JSON
         return jsonify({"Estado": True, "Reservas": reservas_con_nombres})
@@ -229,7 +347,6 @@ def api_obtener_cliente(id):
             cliente[0], cliente[1], cliente[2], cliente[3], cliente[4]
         )
         listaserializable.append(miobj.midic.copy())
-
         return jsonify({"Estado": True, "Mensaje": "OK", "Datos": listaserializable})
 
     except Exception as e:
@@ -344,6 +461,43 @@ def api_guardar_hotel_template():
     return redirect("/listadoHoteles")
 
 
+@app.route("/api_actualizar_hotelTemplate/<int:id>", methods=["POST"])
+def api_actualizar_hotelTemplate(id):
+    try:
+        # Obtener datos del formulario de edición
+        p_nombre = request.form["nombre"]
+        p_ubicacion = request.form["ubicacion"]
+        p_ruc = request.form["ruc"]
+        p_descripcion = request.form["descripcion"]
+
+        # Verificar si se ha enviado una nueva imagen
+        if "nueva_imagen" in request.files:
+            nueva_imagen = request.files["nueva_imagen"]
+            if nueva_imagen.filename != "":
+                # Generar un nombre seguro para la nueva imagen
+                nuevo_nombre_seguro = secure_filename(nueva_imagen.filename)
+                # Guardar la nueva imagen en la carpeta designada
+                nueva_ruta_guardado = os.path.join(
+                    app.config["UPLOAD_FOLDER"], nuevo_nombre_seguro
+                )
+                nueva_imagen.save(nueva_ruta_guardado)
+                # Actualizar la referencia de imagen en la base de datos
+                HotelController.actualizar_hotel(
+                    id, p_nombre, p_ubicacion, p_ruc, p_descripcion, nuevo_nombre_seguro
+                )
+        else:
+            # Si no se proporciona una nueva imagen, actualizar sin cambiar la foto
+            HotelController.actualizar_hotel(
+                id, p_nombre, p_ubicacion, p_ruc, p_descripcion
+            )
+        return redirect(url_for("listadoHoteles"))
+    except Exception as e:
+        return redirect(url_for("listadoHoteles"))
+
+
+# ... (importaciones y configuraciones anteriores) ...
+
+
 @app.route("/api_actualizar_hotel/<int:id>", methods=["POST"])
 def api_actualizar_hotel(id):
     try:
@@ -379,23 +533,10 @@ def api_actualizar_hotel(id):
         return jsonify({"Estado": False, "Mensaje": str(e)})
 
 
-@app.route("/api_obtener_hoteles")
-# @jwt_required()
-def api_obtener_hoteles():
-    try:
-        hoteles = HotelController.obtener_hoteles()
-        listaserializable = []
-        for hotel_data in hoteles:
-            # Asegúrate de que hotel_data tenga al menos 6 elementos
-            if len(hotel_data) >= 6:
-                hotel = Hotel(*hotel_data)
-                hotel_dict = hotel.midic.copy()
-                listaserializable.append(hotel_dict)
-            else:
-                print(f"Datos insuficientes para hotel: {hotel_data}")
-        return jsonify({"Estado": True, "Mensaje": "OK", "Datos": listaserializable})
-    except Exception as e:
-        return jsonify({"Estado": False, "Mensaje": str(e)})
+@app.route("/editar_hotel/<int:id>", methods=["GET", "POST"])
+def editar_hotel(id):
+    hotel = HotelController.obtener_hotel_por_id(id)
+    return render_template("editar_hotel.html", hotel=hotel)
 
 
 @app.route("/api_eliminar_hotel", methods=["POST"])
@@ -471,6 +612,40 @@ def api_guardar_lugar_turistico_template():
         return jsonify({"error": str(e)})
 
 
+@app.route("/editar_lugar_turistico/<int:id>", methods=["GET", "POST"])
+def editar_lugar_turistico(id):
+    if request.method == "GET":
+        lugar_turistico = LugarTuristicoController.obtener_lugar_turistico_por_id(id)
+        return render_template(
+            "editar_lugar_turistico.html", lugar_turistico=lugar_turistico
+        )
+    elif request.method == "POST":
+        # Procesar el formulario de edición
+        nombre = request.form.get("nombre")
+        ubicacion = request.form.get("ubicacion")
+        descripcion = request.form.get("descripcion")
+        foto = request.files.get("foto")
+        # Procesar la foto, si se proporciona
+        if foto:
+            nombre_archivo = secure_filename(foto.filename)
+            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+            foto.save(ruta_guardado)
+        else:
+            nombre_archivo = "default.png"
+
+        # Actualizar el lugar turístico en la base de datos
+        LugarTuristicoController.actualizar_lugar_turistico(
+            p_id=id,
+            p_nombre=nombre,
+            p_descripcion=descripcion,
+            p_ubicacion=ubicacion,
+            p_foto_url=nombre_archivo,
+        )
+
+        # Redirigir al listado de lugares turísticos después de la edición
+        return redirect(url_for("listado_lugares_turisticos"))
+
+
 @app.route("/listadoHoteles")
 def listadoHoteles():
     # Lógica para obtener datos si es necesario
@@ -511,6 +686,36 @@ def Api_guardarHabitacionGet():
         return jsonify(response), 500
 
 
+@app.route("/editar_habitacion/<int:id>", methods=["GET", "POST"])
+def editar_habitacion(id):
+    habitacion = HabitacionController.obtener_habitacion_por_id(id)
+
+    if request.method == "POST":
+        # Lógica para actualizar los detalles de la habitación con los datos del formulario
+        numero = request.form["numero"]
+        tipo = request.form["tipo"]
+        precio = request.form["precio"]
+
+        # Manejo de la carga de la nueva imagen (si se proporciona)
+        if "nueva_imagen" in request.files:
+            nueva_imagen = request.files["nueva_imagen"]
+            if nueva_imagen.filename != "":
+                filename = secure_filename(nueva_imagen.filename)
+                nueva_imagen.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+                habitacion.foto_url = filename
+
+        # Lógica para actualizar los detalles de la habitación en la base de datos
+        HabitacionController.actualizar_habitacion(
+            id, numero, tipo, precio, habitacion.foto_url
+        )
+
+        # Redirigir a la página de listado de habitaciones después de la edición
+        return redirect(url_for("listadoHabitaciones", hotel_id=habitacion.hotel_id))
+
+    # Renderizar la plantilla de edición de habitación
+    return render_template("editar_habitacion.html", habitacion=habitacion)
+
+
 @app.route("/api_guardar_habitacionPlantilla", methods=["POST"])
 def api_guardar_habitacionPlantilla():
     try:
@@ -543,38 +748,26 @@ def formulario_agregar_habitacion(hotel_id):
     return render_template("formulario_agregar_habitacion.html", hotel_id=hotel_id)
 
 
-@app.route("/editar_habitacion/<int:id>", methods=["GET", "POST"])
-def editar_habitacion(id):
-    # Obtener la habitación a editar desde la base de datos
-    habitacion = HabitacionController.obtener_habitacion_por_id(id)
-
-    if request.method == "POST":
-        # Procesar el formulario enviado
-        numero = request.form.get("numero")
-        tipo = request.form.get("tipo")
-        precio = request.form.get("precio")
-
-        # Realizar la actualización en la base de datos
-        HabitacionController.actualizar_habitacion(
-            id, numero, tipo, precio, habitacion.hotel_id, habitacion.foto_url
-        )
-
-        # Redirigir a la lista de habitaciones del hotel
-        return redirect(url_for("listadoHabitaciones", hotel_id=habitacion.hotel_id))
-
-    # Renderizar la plantilla de edición con los datos de la habitación
-    return render_template("editarhabitacion.html", habitacion=habitacion)
-
-
 @app.route("/listado_habitaciones/<int:hotel_id>")
-def listadoHabitaciones(hotel_id):
+def listado_habitaciones(hotel_id):
     # Lógica para obtener las habitaciones
     habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
-
     # Renderiza la plantilla y pasa el hotel_id al contexto
     return render_template(
         "listadohabitaciones.html", habitaciones=habitaciones, hotel_id=hotel_id
     )
+
+
+@app.route("/formulario_agregar_reserva/<cliente_id>")
+def formulario_agregar_reserva(cliente_id):
+    return redirect(url_for("listadoHabitaciones", hotel_id=1))
+    # Your view logic here
+
+
+@app.route("/listado_reservas/<int:hotel_id>")
+def listado_Reservas(hotel_id):
+    reservas = ReservaController.obtener_reservas_por_hotel(hotel_id)
+    return render_template("listadoreservas.html", reservas=reservas, hotel_id=hotel_id)
 
 
 @app.route("/eliminar_habitacion", methods=["POST"])
@@ -586,38 +779,5 @@ def eliminar_habitacion():
         return redirect(url_for("listadoHabitaciones", hotel_id=1))
 
 
-@app.route("/api_obtener_habitaciones_por_hotel/<int:hotel_id>")
-def api_obtener_habitaciones_por_hotel(hotel_id):
-    try:
-        habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
-        if habitaciones:
-            # Convertir la lista de habitaciones a un formato JSON
-            habitaciones_json = [
-                {
-                    "id": habitacion[0],
-                    "numero": habitacion[1],
-                    "tipo": habitacion[2],
-                    "precio": habitacion[3],
-                    "hotel_id": habitacion[4],
-                    "foto_url": habitacion[5],
-                }
-                for habitacion in habitaciones
-            ]
-
-            return jsonify(
-                {"Estado": True, "Mensaje": "OK", "Datos": habitaciones_json}
-            )
-        else:
-            return jsonify(
-                {
-                    "Estado": False,
-                    "Mensaje": "No hay habitaciones para el hotel especificado",
-                }
-            )
-
-    except Exception as e:
-        return jsonify({"Estado": False, "Mensaje": str(e)})
-
-
 if __name__ == "__main__":
-    app.run(host="localhost", debug=True)
+    app.run(host="172.20.10.5", debug=True)

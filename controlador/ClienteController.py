@@ -83,7 +83,10 @@ class ClienteController:
                     if bcrypt.checkpw(password, hashed_password):
                         return {
                             "id": usuario[0],
+                            "nombre": usuario[1],
+                            "apellido": usuario[2],
                             "dni": usuario[3],
+                            "lugar_procedencia": usuario[4],
                         }  # Adjust indices as needed
                     else:
                         return None
