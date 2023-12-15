@@ -748,7 +748,7 @@ def formulario_agregar_habitacion(hotel_id):
     return render_template("formulario_agregar_habitacion.html", hotel_id=hotel_id)
 
 
-@app.route("/listado_habitaciones/<int:hotel_id>")
+@app.route("/listado_habitaciones/<int:hotel_id>", methods=["GET", "POST"])
 def listado_habitaciones(hotel_id):
     # Lógica para obtener las habitaciones
     habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
@@ -758,13 +758,13 @@ def listado_habitaciones(hotel_id):
     )
 
 
-@app.route("/formulario_agregar_reserva/<cliente_id>")
+@app.route("/formulario_agregar_reserva/<cliente_id>", methods=["GET", "POST"])
 def formulario_agregar_reserva(cliente_id):
     return redirect(url_for("listadoHabitaciones", hotel_id=1))
     # Your view logic here
 
 
-@app.route("/listado_reservas/<int:hotel_id>")
+@app.route("/listado_reservas/<int:hotel_id>", methods=["GET", "POST"])
 def listado_Reservas(hotel_id):
     reservas = ReservaController.obtener_reservas_por_hotel(hotel_id)
     return render_template("listadoreservas.html", reservas=reservas, hotel_id=hotel_id)

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-12-2023 a las 05:15:07
+-- Tiempo de generación: 15-12-2023 a las 22:12:06
 -- Versión del servidor: 10.4.27-MariaDB
 -- Versión de PHP: 8.2.0
 
@@ -41,9 +41,9 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`id`, `nombre`, `apellido`, `dni`, `lugar_procedencia`, `password`) VALUES
-(24, 'q', 'qs', 's', 's', '$2b$12$L5XFdVKvPuhdpX6/P7BKfO3xXDof/JNfOtEhVVsCjjZLML6pVRB0u'),
-(29, 'admin', 'super admin', '123', 'lima', '$2b$12$U9c5XQxZIdhz.G7qtj.OTOd3lh7W3paFO90c0XwtXbtq2T/50/xG2'),
-(30, 'juan peres', 'peres merino', '12345', 'chota', '$2b$12$qPHrH8iyS5r3cH7iK/204OGpMFQp6nC0..odg01E1lAlrC5XR/waq'),
+(24, 'MARCOS', 'RAMIRES', '3333', 'CHANCAYO', '$2b$12$L5XFdVKvPuhdpX6/P7BKfO3xXDof/JNfOtEhVVsCjjZLML6pVRB0u'),
+(29, 'Seductor', 'super admin', '123', 'lima', '$2b$12$U9c5XQxZIdhz.G7qtj.OTOd3lh7W3paFO90c0XwtXbtq2T/50/xG2'),
+(30, 'la chotana', 'papas con queso', '12345', 'chota', '$2b$12$qPHrH8iyS5r3cH7iK/204OGpMFQp6nC0..odg01E1lAlrC5XR/waq'),
 (31, 'mario', 'mario bross', 'mario', 'chiclayo', '$2b$12$PNurLH6bmH2X3wEU17jqN.S6W1j5.TV0wwIiSnrCkQKmCsOOhMKrG');
 
 -- --------------------------------------------------------
@@ -70,7 +70,7 @@ INSERT INTO `habitaciones` (`id`, `numero`, `tipo`, `precio`, `hotel_id`, `foto_
 (30, 101, 'presidencial', '4000', 5, 'Screenshot_15.jpg'),
 (31, 103, 'presidencial', '500', 5, 'Screenshot_15.jpg'),
 (32, 105, 'presidencial', '4000', 5, 'Screenshot_15.jpg'),
-(33, 106, 'presidencial', '500', 5, 'Screenshot_15.jpg');
+(33, 106, 'presidencial', '500', 5, 'Screenshot_14.jpg');
 
 -- --------------------------------------------------------
 
@@ -92,8 +92,8 @@ CREATE TABLE `hoteles` (
 --
 
 INSERT INTO `hoteles` (`id`, `nombre`, `ubicacion`, `ruc`, `descripcion`, `foto_url`) VALUES
-(5, 'Ibis', 'la victoriwa #233', '12213213', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.	', 'Screenshot_14.jpg'),
-(9, 'PASA Y KACHA ', 'san lucas #33', '12231312312', 'HOTEL CON TV , CABLE  , AGUA CALIENTE', 'Screenshot_13.jpg');
+(5, 'LA RICA POLLA', 'la victoriwa #233', '12213213', 'TE DAMOS TU LUBRICANTE Y ACEITE PARA FOLLAR TAMBIEN CONTAMOS CON PUTAS y mas', 'Screenshot_15.jpg'),
+(9, 'PASA Y KACHA ', 'san lucas #33', '12231312312', 'HOTEL CON TV , CABLE  , AGUA CALIENTE  y MAS', NULL);
 
 -- --------------------------------------------------------
 
@@ -114,7 +114,7 @@ CREATE TABLE `lugares_turisticos` (
 --
 
 INSERT INTO `lugares_turisticos` (`id`, `nombre`, `descripcion`, `ubicacion`, `foto_url`) VALUES
-(14, 'cerro colorado', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. \r\n                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \r\n                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \r\n                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'san lucas #33', 'Screenshot_11.jpg'),
+(14, 'cerro colorado', 'lugar donde vas los cachudos', 'san lucas #33', 'Screenshot_11.jpg'),
 (15, 'Santuario Histórico de Machu Picchu', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'Cusco', 'Screenshot_12.jpg');
 
 -- --------------------------------------------------------
