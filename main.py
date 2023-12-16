@@ -51,6 +51,72 @@ def mostrar_imagen(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
+@app.route("/api_guardar_lugar_turistico_template", methods=["POST"])
+def api_guardar_lugar_turistico_template():
+    try:
+        # Obtener los datos del formulario
+        nombre = request.form.get("nombre")
+        ubicacion = request.form.get("ubicacion")
+        descripcion = request.form.get("descripcion")
+        foto = request.files.get("foto")
+        if foto:
+            # Generar un nombre único para el archivo
+            nombre_archivo = secure_filename(foto.filename)
+            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
+            foto.save(ruta_guardado)
+        else:
+            nombre_archivo = "default.png"
+
+        # Usar el nombre de la foto como argumento
+        LugarTuristicoController.insertar_lugar_turistico(
+            p_nombre=nombre,
+            p_descripcion=descripcion,
+            p_ubicacion=ubicacion,
+            p_foto_url=nombre_archivo,  # Cambié el nombre del argumento aquí
+        )
+
+        # Después de procesar el formulario, redirige a la página de listado de lugares turísticos
+        return redirect(url_for("listado_lugares_turisticos"))
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/editar_lugar_turistico/<int:id>", methods=["GET", "POST"])
+def editar_lugar_turistico(id):
+    lugar_turistico = LugarTuristicoController.obtener_lugar_turistico_por_id(id)
+
+    if request.method == "GET":
+        return render_template(
+            "editar_lugar_turistico.html", lugar_turistico=lugar_turistico
+        )
+    elif request.method == "POST":
+        try:
+            # Process the editing form
+            nombre = request.form.get("nombre")
+            ubicacion = request.form.get("ubicacion")
+            descripcion = request.form.get("descripcion")
+            foto = request.files.get("imegHlugar")
+            if foto:
+                # Generar un nombre único para el archivo
+                nombre_archivo = secure_filename(foto.filename)
+                ruta_guardado = os.path.join(
+                    app.config["UPLOAD_FOLDER"], nombre_archivo
+                )
+                foto.save(ruta_guardado)
+            else:
+                nombre_archivo = "default.png"
+
+            # Update the tourist location in the database
+            LugarTuristicoController.actualizar_lugar_turistico(
+                id, nombre, descripcion, ubicacion, nombre_archivo
+            )
+
+            # Redirect to the tourist locations listing after editing
+            return redirect(url_for("listado_lugares_turisticos"))
+        except Exception as e:
+            return jsonify({"error": str(e)})
+
+
 @app.route("/api_obtener_habitaciones_por_hotel/<int:hotel_id>")
 @jwt_required()
 def api_obtener_habitaciones_por_hotel(hotel_id):
@@ -580,70 +646,6 @@ def api_eliminar_lugar_turistico_plantilla():
 def formulario_agregar_lugar_turistico():
     # Lógica para manejar el formulario de agregar cliente
     return render_template("formulario_agregar_lugar_turistico.html")
-
-
-@app.route("/api_guardar_lugar_turistico_template", methods=["POST"])
-def api_guardar_lugar_turistico_template():
-    try:
-        # Obtener los datos del formulario
-        nombre = request.form.get("nombre")
-        ubicacion = request.form.get("ubicacion")
-        descripcion = request.form.get("descripcion")
-        foto = request.files.get("foto")
-        if foto:
-            # Generar un nombre único para el archivo
-            nombre_archivo = secure_filename(foto.filename)
-            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
-            foto.save(ruta_guardado)
-        else:
-            nombre_archivo = "default.png"
-
-        # Usar el nombre de la foto como argumento
-        LugarTuristicoController.insertar_lugar_turistico(
-            p_nombre=nombre,
-            p_descripcion=descripcion,
-            p_ubicacion=ubicacion,
-            p_foto_url=nombre_archivo,  # Cambié el nombre del argumento aquí
-        )
-
-        # Después de procesar el formulario, redirige a la página de listado de lugares turísticos
-        return redirect(url_for("listado_lugares_turisticos"))
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/editar_lugar_turistico/<int:id>", methods=["GET", "POST"])
-def editar_lugar_turistico(id):
-    if request.method == "GET":
-        lugar_turistico = LugarTuristicoController.obtener_lugar_turistico_por_id(id)
-        return render_template(
-            "editar_lugar_turistico.html", lugar_turistico=lugar_turistico
-        )
-    elif request.method == "POST":
-        # Procesar el formulario de edición
-        nombre = request.form.get("nombre")
-        ubicacion = request.form.get("ubicacion")
-        descripcion = request.form.get("descripcion")
-        foto = request.files.get("foto")
-        # Procesar la foto, si se proporciona
-        if foto:
-            nombre_archivo = secure_filename(foto.filename)
-            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], nombre_archivo)
-            foto.save(ruta_guardado)
-        else:
-            nombre_archivo = "default.png"
-
-        # Actualizar el lugar turístico en la base de datos
-        LugarTuristicoController.actualizar_lugar_turistico(
-            p_id=id,
-            p_nombre=nombre,
-            p_descripcion=descripcion,
-            p_ubicacion=ubicacion,
-            p_foto_url=nombre_archivo,
-        )
-
-        # Redirigir al listado de lugares turísticos después de la edición
-        return redirect(url_for("listado_lugares_turisticos"))
 
 
 @app.route("/listadoHoteles")
