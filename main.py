@@ -85,6 +85,10 @@ def api_guardar_lugar_turistico_template():
 def editar_lugar_turistico(id):
     lugar_turistico = LugarTuristicoController.obtener_lugar_turistico_por_id(id)
 
+    if lugar_turistico is None:
+        # Handle non-existing tourist location
+        return jsonify({"error": "Tourist location not found"})
+
     if request.method == "GET":
         return render_template(
             "editar_lugar_turistico.html", lugar_turistico=lugar_turistico
@@ -96,15 +100,18 @@ def editar_lugar_turistico(id):
             ubicacion = request.form.get("ubicacion")
             descripcion = request.form.get("descripcion")
             foto = request.files.get("imegHlugar")
+
+            # Check if a new photo is provided
             if foto:
-                # Generar un nombre único para el archivo
+                # Generate a unique filename for the file
                 nombre_archivo = secure_filename(foto.filename)
                 ruta_guardado = os.path.join(
                     app.config["UPLOAD_FOLDER"], nombre_archivo
                 )
                 foto.save(ruta_guardado)
             else:
-                nombre_archivo = "default.png"
+                # No new photo provided, keep the existing photo
+                nombre_archivo = lugar_turistico[4]
 
             # Update the tourist location in the database
             LugarTuristicoController.actualizar_lugar_turistico(
@@ -158,24 +165,26 @@ def api_obtener_habitaciones_por_hotel(hotel_id):
 @jwt_required()
 def api_obtener_hoteles():
     try:
-        base_url = request.url_root + "imagen/"  # URL base para las imágenes
         hoteles = HotelController.obtener_hoteles()
-        listaserializable = []
 
-        for hotel_data in hoteles:
-            # Asegúrate de que hotel_data tenga al menos 6 elementos
-            if len(hotel_data) >= 6:
-                hotel = Hotel(*hotel_data)
-                hotel_dict = hotel.midic.copy()
+        # Serializar la lista de hoteles
+        hoteles_serializados = []
+        for hotel in hoteles:
+            foto_nombre = hotel[5]
+            foto_url = f"{request.url_root}imagen/{foto_nombre}"
 
-                # Construye la URL completa para la imagen
-                hotel_dict["foto_url"] = base_url + hotel_dict["foto_url"]
+            hotel_serializado = {
+                "id": hotel[0],
+                "nombre": hotel[1],
+                "ubicacion": hotel[2],
+                "ruc": hotel[3],
+                "descripcion": hotel[4],
+                "foto_url": foto_url,
+            }
+            hoteles_serializados.append(hotel_serializado)
 
-                listaserializable.append(hotel_dict)
-            else:
-                print(f"Datos insuficientes para hotel: {hotel_data}")
-
-        return jsonify({"Estado": True, "Mensaje": "OK", "Datos": listaserializable})
+        # Devolver la respuesta JSON con los datos serializados
+        return jsonify({"Estado": True, "Mensaje": "OK", "Datos": hoteles_serializados})
     except Exception as e:
         return jsonify({"Estado": False, "Mensaje": str(e)})
 
@@ -712,7 +721,9 @@ def editar_habitacion(id):
         )
 
         # Redirigir a la página de listado de habitaciones después de la edición
-        return redirect(url_for("listadoHabitaciones", hotel_id=habitacion.hotel_id))
+        return redirect(
+            url_for("listado_habitaciones_template", hotel_id=habitacion.hotel_id)
+        )
 
     # Renderizar la plantilla de edición de habitación
     return render_template("editar_habitacion.html", habitacion=habitacion)
@@ -737,7 +748,7 @@ def api_guardar_habitacionPlantilla():
         HabitacionController.insertar_habitacion(
             numero, tipo, precio, hotel_id, nombre_archivo
         )
-        return redirect(url_for("listadoHabitaciones", hotel_id=hotel_id))
+        return redirect(url_for("listado_habitaciones_template", hotel_id=hotel_id))
 
     except Exception as e:
         # Manejar errores, por ejemplo, si no se pueden obtener los datos correctamente
@@ -750,19 +761,19 @@ def formulario_agregar_habitacion(hotel_id):
     return render_template("formulario_agregar_habitacion.html", hotel_id=hotel_id)
 
 
-@app.route("/listado_habitaciones/<int:hotel_id>", methods=["GET", "POST"])
-def listado_habitaciones(hotel_id):
+@app.route("/listado_habitaciones_template/<int:hotel_id>", methods=["GET", "POST"])
+def listado_habitaciones_template(hotel_id):
     # Lógica para obtener las habitaciones
     habitaciones = HabitacionController.obtener_habitaciones_por_hotel(hotel_id)
     # Renderiza la plantilla y pasa el hotel_id al contexto
     return render_template(
-        "listadohabitaciones.html", habitaciones=habitaciones, hotel_id=hotel_id
+        "listado_Habitaciones.html", habitaciones=habitaciones, hotel_id=hotel_id
     )
 
 
 @app.route("/formulario_agregar_reserva/<cliente_id>", methods=["GET", "POST"])
 def formulario_agregar_reserva(cliente_id):
-    return redirect(url_for("listadoHabitaciones", hotel_id=1))
+    return redirect(url_for("listado_habitaciones_template", hotel_id=1))
     # Your view logic here
 
 
@@ -778,7 +789,7 @@ def eliminar_habitacion():
         habitacion_id = request.form.get("id")
         HabitacionController.eliminar_habitacion(habitacion_id)
         # Redirigir al listado de habitaciones después de la eliminación
-        return redirect(url_for("listadoHabitaciones", hotel_id=1))
+        return redirect(url_for("listado_habitaciones_template", hotel_id=1))
 
 
 if __name__ == "__main__":

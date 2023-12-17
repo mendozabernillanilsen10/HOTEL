@@ -51,7 +51,7 @@
                 </td>
                 <td>
                   <!-- Nueva columna para el botón de ver habitaciones -->
-                  <a href="{{ url_for('listado_habitaciones', hotel_id=hotel[0]) }}" class="button is-primary ver-habitaciones mb-2">Ver Habitaciones</a>
+                  <a href="{{ url_for('listado_habitaciones_template', hotel_id=hotel[0]) }}" class="button is-primary ver-habitaciones mb-2">Ver Habitaciones</a>
                   <br>
                   <a href="{{ url_for('listado_Reservas', hotel_id=hotel[0]) }}" class="button is-primary ver-reservas mt-2">Ver Reservas</a>
               </td>

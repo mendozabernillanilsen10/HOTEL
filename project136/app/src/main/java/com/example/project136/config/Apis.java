@@ -4,7 +4,7 @@ import com.example.project136.service.Service;
 
 public class Apis  {
 
-    public static final String URL_001= "http://172.20.10.5:5000/";
+    public static final String URL_001= "https://ballenaruiz27.pythonanywhere.com/";
 
     public static Service Mediador(){
         return  Cliente.getClient(URL_001).create(Service.class);
