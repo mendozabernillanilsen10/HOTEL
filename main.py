@@ -104,11 +104,13 @@ def editar_lugar_turistico(id):
             # Check if a new photo is provided
             if foto:
                 # Generate a unique filename for the file
+
                 nombre_archivo = secure_filename(foto.filename)
                 ruta_guardado = os.path.join(
                     app.config["UPLOAD_FOLDER"], nombre_archivo
                 )
                 foto.save(ruta_guardado)
+
             else:
                 # No new photo provided, keep the existing photo
                 nombre_archivo = lugar_turistico[4]
